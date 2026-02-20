@@ -1,0 +1,22 @@
+[Unit]
+Description=KAHU Radar Emulator (development/testing only — disable on real vessel)
+Documentation=https://github.com/KAHU-radar/radar-emulator-navico
+After=network.target
+# Do NOT enable this service on a vessel with a real radar attached.
+# It is only used when running without hardware for development testing.
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/kahu-stack/radar-emulator-navico
+
+ExecStart=/home/pi/kahu-stack/radar-emulator-navico/venv/bin/python3 \
+    /home/pi/kahu-stack/radar-emulator-navico/emulate_with_arpa.py
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

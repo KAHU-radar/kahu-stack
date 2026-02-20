@@ -1,0 +1,23 @@
+[Unit]
+Description=KAHU Stack (EchoFlow Lite target detection + Foxglove bridge)
+Documentation=https://github.com/KAHU-radar/echoflow-lite
+After=network-online.target mayara-ros-bridge.service
+Wants=mayara-ros-bridge.service
+
+[Service]
+Type=simple
+User=pi
+
+# Source ROS2 + workspace, then launch EchoFlow Lite and Foxglove bridge
+ExecStart=/bin/bash -c '\
+    source /opt/ros/jazzy/setup.bash && \
+    source /home/pi/ros2_ws/install/setup.bash && \
+    ros2 launch echoflow_lite kahu_stack.launch.py'
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,27 @@
+[Unit]
+Description=KAHU Track Uploader Node (vessel tracks → cloud backend)
+Documentation=https://github.com/KAHU-radar/kahu-stack
+After=network-online.target kahu-stack.service nmea-vessel.service
+Wants=kahu-stack.service nmea-vessel.service
+
+[Service]
+Type=simple
+User=pi
+
+# Override in /etc/default/kahu:
+#   KAHU_UPLOAD_URL=https://your-cloud-run-url/api/tracks
+#   KAHU_VESSEL_ID=vessel-001
+EnvironmentFile=-/etc/default/kahu
+
+ExecStart=/bin/bash -c '\
+    source /opt/ros/jazzy/setup.bash && \
+    source /home/pi/ros2_ws/install/setup.bash && \
+    python3 /home/pi/kahu-stack/kahu-stack/kahu_uploader_node.py'
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

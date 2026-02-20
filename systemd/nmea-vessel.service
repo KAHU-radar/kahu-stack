@@ -1,0 +1,23 @@
+[Unit]
+Description=KAHU NMEA Vessel Position Node (GPS + heading publisher)
+Documentation=https://github.com/KAHU-radar/kahu-stack
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+
+# Source ROS2 + workspace, then run the NMEA listener node
+ExecStart=/bin/bash -c '\
+    source /opt/ros/jazzy/setup.bash && \
+    source /home/pi/ros2_ws/install/setup.bash && \
+    python3 /home/pi/kahu-stack/kahu-stack/nmea_vessel_node.py'
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

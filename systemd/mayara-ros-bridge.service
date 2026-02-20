@@ -1,0 +1,34 @@
+[Unit]
+Description=KAHU Mayara→ROS2 Bridge (radar spoke decoder)
+Documentation=https://github.com/KAHU-radar/mayara-ros-bridge
+After=network-online.target mayara-server.service
+Wants=mayara-server.service
+# Give mayara-server time to discover the radar before bridge connects
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/kahu-stack/mayara_ros_bridge
+
+# Optional: override in /etc/default/kahu
+# MAYARA_HOST=localhost:6502  (default — change if mayara runs on another host)
+EnvironmentFile=-/etc/default/kahu
+
+# Source ROS2 and workspace, then run the bridge
+ExecStartPre=/bin/sleep 3
+ExecStart=/bin/bash -c '\
+    source /opt/ros/jazzy/setup.bash && \
+    source /home/pi/ros2_ws/install/setup.bash && \
+    export PYTHONPATH="/home/pi/kahu-stack/mayara_ros_bridge:$PYTHONPATH" && \
+    export MAYARA_HOST="${MAYARA_HOST:-localhost:6502}" && \
+    python3 /home/pi/kahu-stack/mayara_ros_bridge/bridge_node.py'
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

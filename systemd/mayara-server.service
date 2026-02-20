@@ -1,0 +1,28 @@
+[Unit]
+Description=Mayara Radar Server (Navico/Halo interface)
+Documentation=https://github.com/MarineYachtRadar/mayara-server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/kahu-stack/mayara-server
+
+# Override defaults in /etc/default/kahu
+# RADAR_INTERFACE: ethernet interface connected to the radar (run `ip link` to find it)
+# For loopback/emulator use: RADAR_INTERFACE=lo
+EnvironmentFile=-/etc/default/kahu
+
+ExecStart=/bin/bash -c '/home/pi/kahu-stack/mayara-server/target/release/mayara-server \
+    --interface ${RADAR_INTERFACE:-eth0} \
+    --brand navico \
+    -v'
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
